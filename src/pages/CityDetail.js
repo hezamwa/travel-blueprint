@@ -1,109 +1,96 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Container,
-  Typography,
-  Box,
-  Grid,
-  Card,
-  CardContent,
-  Button,
-  CircularProgress,
-  Paper,
-  Chip,
-  List,
-  ListItem,
-  ListItemText,
-  Divider
-} from '@mui/material';
-import {
-  ArrowBack as BackIcon,
-  LocationCity as CityIcon,
-  WbSunny as WeatherIcon,
-  Flight as AirportIcon,
-  Place as AttractionIcon,
-  Public as CountryIcon,
-  OpenInNew as LinkIcon
-} from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
+import { 
+  ArrowLeftIcon,
+  BuildingOffice2Icon,
+  SunIcon,
+  PaperAirplaneIcon,
+  MapPinIcon,
+  GlobeAltIcon,
+  ArrowTopRightOnSquareIcon
+} from '@heroicons/react/24/outline';
 import { getCityById, getAttractionsByCity } from '../services/firestoreService';
+import Card from '../components/Card';
 
-const AttractionCard = ({ attraction }) => {
-  const { t, i18n } = useTranslation();
-  const isArabic = i18n.language === 'ar';
+const AttractionCard = ({ attraction, index }) => {
+  const { t } = useTranslation();
 
   return (
-    <Card sx={{ height: '100%' }}>
-      <CardContent>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <AttractionIcon sx={{ mr: 1, color: 'secondary.main' }} />
-          <Typography variant="h6" component="h3">
-            {attraction.name}
-          </Typography>
-        </Box>
+    <div 
+      className="group"
+      style={{ 
+        animationDelay: `${index * 100}ms` 
+      }}
+    >
+      <Card className="h-full relative overflow-hidden group-hover:scale-105 transition-all duration-500 border-0 shadow-xl hover:shadow-2xl hover:bg-gradient-to-br hover:from-teal-50 hover:to-cyan-50 hover:border-teal-200 border-2 border-transparent">
+        {/* Gradient Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-cyan-600 opacity-5 group-hover:opacity-15 transition-opacity duration-300"></div>
         
-        <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
-          <Chip 
-            label={attraction.type}
-            size="small"
-            color="secondary"
-            variant="outlined"
-          />
-          {attraction.typeAr && attraction.typeAr !== attraction.type && (
-            <Chip 
-              label={attraction.typeAr}
-              size="small"
-              color="secondary"
-              variant="filled"
-            />
+        <div className="relative">
+          {/* Header with Icon and Name */}
+          <div className="flex items-center mb-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg mr-3">
+              <MapPinIcon className="h-6 w-6 text-purple" />
+            </div>
+            <h3 className="text-xl font-semibold text-darkpurple group-hover:text-blue transition-colors duration-300">
+              {attraction.name}
+            </h3>
+          </div>
+          
+          {/* Type Badges */}
+          <div className="flex gap-2 mb-4 flex-wrap">
+            <span className="inline-block px-3 py-1 bg-gradient-to-r from-purple-500 to-purple-600 text-white text-xs font-medium rounded-full group-hover:from-purple-600 group-hover:to-purple-700 transition-all duration-300 transform group-hover:scale-105">
+              {attraction.type}
+            </span>
+            {attraction.typeAr && attraction.typeAr !== attraction.type && (
+              <span className="inline-block px-3 py-1 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white text-xs font-medium rounded-full group-hover:from-indigo-600 group-hover:to-indigo-700 transition-all duration-300 transform group-hover:scale-105">
+                {attraction.typeAr}
+              </span>
+            )}
+          </div>
+          
+          {/* English Description */}
+          {attraction.description && (
+            <div className="mb-4">
+              <div className="flex items-center mb-2">
+                <span className="text-sm font-bold text-grey">🇬🇧 English</span>
+              </div>
+              <p className="text-sm text-grey italic leading-relaxed group-hover:text-darkpurple transition-colors duration-300">
+                {attraction.description}
+              </p>
+            </div>
           )}
-        </Box>
-        
-        {/* English Description */}
-        {attraction.description && (
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="caption" sx={{ fontWeight: 'bold', color: 'text.secondary', display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              🇬🇧 English
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-              {attraction.description}
-            </Typography>
-          </Box>
-        )}
-        
-        {/* Divider if both descriptions exist */}
-        {attraction.description && attraction.descriptionAr && (
-          <Divider sx={{ my: 1 }} />
-        )}
-        
-        {/* Arabic Description */}
-        {attraction.descriptionAr && (
-          <Box sx={{ mb: 1 }}>
-            <Typography variant="caption" sx={{ fontWeight: 'bold', color: 'text.secondary', display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              🇸🇦 العربية
-            </Typography>
-            <Typography 
-              variant="body2" 
-              color="text.secondary" 
-              sx={{ 
-                fontStyle: 'italic',
-                direction: 'rtl',
-                textAlign: 'right'
-              }}
-            >
-              {attraction.descriptionAr}
-            </Typography>
-          </Box>
-        )}
-        
-        {/* Show "No description" if neither exists */}
-        {!attraction.description && !attraction.descriptionAr && (
-          <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-            {t('no_data')}
-          </Typography>
-        )}
-      </CardContent>
-    </Card>
+          
+          {/* Divider if both descriptions exist */}
+          {attraction.description && attraction.descriptionAr && (
+            <div className="border-b border-lightborder my-3"></div>
+          )}
+          
+          {/* Arabic Description */}
+          {attraction.descriptionAr && (
+            <div className="mb-2">
+              <div className="flex items-center mb-2">
+                <span className="text-sm font-bold text-grey">🇸🇦 العربية</span>
+              </div>
+              <p className="text-sm text-grey italic leading-relaxed text-right group-hover:text-darkpurple transition-colors duration-300" dir="rtl">
+                {attraction.descriptionAr}
+              </p>
+            </div>
+          )}
+          
+          {/* Show "No description" if neither exists */}
+          {!attraction.description && !attraction.descriptionAr && (
+            <p className="text-sm text-grey italic">
+              {t('no_data')}
+            </p>
+          )}
+        </div>
+
+        {/* Animated border */}
+        <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-teal-500 to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+      </Card>
+    </div>
   );
 };
 
@@ -140,138 +127,141 @@ const CityDetail = () => {
 
   if (loading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="60vh"
-      >
-        <CircularProgress size={60} />
-        <Typography variant="h6" sx={{ ml: 2 }}>
-          {t('loading')}
-        </Typography>
-      </Box>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue"></div>
+        <span className="ml-4 text-xl text-grey">{t('loading')}</span>
+      </div>
     );
   }
 
   if (!city) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Typography variant="h6" color="text.secondary">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16">
+        <h2 className="text-lg font-medium text-grey">
           {t('no_data')}
-        </Typography>
-      </Container>
+        </h2>
+      </div>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Button
-          startIcon={<BackIcon />}
+    <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16">
+      {/* Navigation */}
+      <div className="flex justify-between items-center mb-8">
+        <button
           onClick={() => navigate('/cities')}
+          className="flex items-center px-4 py-2 text-darkpurple hover:text-blue hover:bg-lightgrey rounded-lg transition-all duration-200 transform hover:scale-105"
         >
+          <ArrowLeftIcon className="h-5 w-5 mr-2" />
           {t('back')}
-        </Button>
+        </button>
         
         {/* Country Link Button */}
         {city.country && (
-          <Button
-            variant="outlined"
-            startIcon={<CountryIcon />}
-            endIcon={<LinkIcon />}
+          <button
             onClick={() => navigate(`/countries/${city.country}`)}
-            sx={{ ml: 2 }}
+            className="flex items-center px-6 py-3 bg-blue text-white hover:bg-darkblue rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
           >
+            <GlobeAltIcon className="h-5 w-5 mr-2" />
             {t('view_details')} - {city.country.charAt(0).toUpperCase() + city.country.slice(1)}
-          </Button>
+            <ArrowTopRightOnSquareIcon className="h-4 w-4 ml-2" />
+          </button>
         )}
-      </Box>
+      </div>
 
       {/* City Header */}
-      <Paper sx={{ p: 4, mb: 4 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-          <CityIcon sx={{ mr: 2, fontSize: 40, color: 'primary.main' }} />
-          <Box>
-            <Typography variant="h3" component="h1">
-              {city.name}
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 1, mt: 1, alignItems: 'center' }}>
-              <Chip 
-                label={t(city.continent)}
-                color="primary"
-              />
-              {/* Country Chip */}
-              {city.country && (
-                <Chip
-                  icon={<CountryIcon />}
-                  label={city.country.charAt(0).toUpperCase() + city.country.slice(1)}
-                  color="secondary"
-                  variant="outlined"
-                  clickable
-                  onClick={() => navigate(`/countries/${city.country}`)}
-                />
-              )}
-            </Box>
-          </Box>
-        </Box>
+      <div className="bg-gradient-to-br from-blue via-btnblue to-darkblue rounded-3xl p-8 mb-8 text-white relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-4 right-4 w-32 h-32 bg-white rounded-full animate-pulse"></div>
+          <div className="absolute bottom-4 left-4 w-16 h-16 bg-white rounded-full animate-bounce"></div>
+        </div>
+        
+        <div className="relative">
+          <div className="flex items-center mb-6">
+            <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mr-4">
+              <BuildingOffice2Icon className="h-10 w-10 text-purple" />
+            </div>
+            <div>
+              <h1 className="text-4xl lg:text-5xl font-bold mb-2">
+                {city.name}
+              </h1>
+              <div className="flex gap-2 items-center">
+                <span className="inline-block px-4 py-2 bg-white/20 backdrop-blur-sm text-white font-medium rounded-full">
+                  {t(city.continent)}
+                </span>
+                {/* Country Chip */}
+                {city.country && (
+                  <span className="inline-block px-4 py-2 bg-gold/20 backdrop-blur-sm text-gold font-medium rounded-full">
+                    {city.country.charAt(0).toUpperCase() + city.country.slice(1)}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
 
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Typography variant="h6" gutterBottom>
-              {t('best_time')}
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              {city.bestTime || t('no_data')}
-            </Typography>
+          {/* City Details Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4">
+              <div className="flex items-center mb-2">
+                <SunIcon className="h-6 w-6 mr-2" />
+                <span className="font-semibold">{t('best_time')}</span>
+              </div>
+              <p className="text-white/80">{city.bestTime || t('no_data')}</p>
+            </div>
 
-            <Typography variant="h6" gutterBottom>
-              {t('top_attraction')}
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              {city.topAttraction || t('no_data')}
-            </Typography>
-          </Grid>
-          
-          <Grid item xs={12} md={6}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <WeatherIcon sx={{ mr: 1 }} />
-              <Typography variant="body1">
-                <strong>{t('avg_temp')}:</strong> {city.avgTemp || t('no_data')}
-              </Typography>
-            </Box>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4">
+              <div className="flex items-center mb-2">
+                <MapPinIcon className="h-6 w-6 mr-2" />
+                <span className="font-semibold">{t('top_attraction')}</span>
+              </div>
+              <p className="text-white/80">{city.topAttraction || t('no_data')}</p>
+            </div>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <AirportIcon sx={{ mr: 1 }} />
-              <Typography variant="body1">
-                <strong>{t('airport')}:</strong> {city.airportName || t('no_data')} ({city.airportCode || 'N/A'})
-              </Typography>
-            </Box>
-          </Grid>
-        </Grid>
-      </Paper>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4">
+              <div className="flex items-center mb-2">
+                <SunIcon className="h-6 w-6 mr-2" />
+                <span className="font-semibold">{t('avg_temp')}</span>
+              </div>
+              <p className="text-white/80">{city.avgTemp || t('no_data')}</p>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4">
+              <div className="flex items-center mb-2">
+                <PaperAirplaneIcon className="h-6 w-6 mr-2" />
+                <span className="font-semibold">{t('airport')}</span>
+              </div>
+              <p className="text-white/80">{city.airportCode || t('no_data')}</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Attractions Section */}
-      <Typography variant="h4" component="h2" gutterBottom>
-        {t('attractions')} ({attractions.length})
-      </Typography>
+      <div>
+        <h2 className="text-4xl font-bold text-darkpurple mb-8">
+          {t('attractions')} ({attractions.length})
+        </h2>
 
-      {attractions.length > 0 ? (
-        <Grid container spacing={3}>
-          {attractions.map((attraction) => (
-            <Grid item xs={12} sm={6} md={4} key={attraction.id}>
-              <AttractionCard attraction={attraction} />
-            </Grid>
-          ))}
-        </Grid>
-      ) : (
-        <Box sx={{ textAlign: 'center', mt: 4 }}>
-          <Typography variant="h6" color="text.secondary">
-            {t('no_data')}
-          </Typography>
-        </Box>
-      )}
-    </Container>
+        {attractions.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+            {attractions.map((attraction, index) => (
+              <AttractionCard 
+                key={attraction.id} 
+                attraction={attraction} 
+                index={index}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <MapPinIcon className="mx-auto h-12 w-12 text-grey mb-4" />
+            <h3 className="text-lg font-medium text-darkpurple mb-2">{t('no_data')}</h3>
+            <p className="text-grey">No attractions found for this city.</p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

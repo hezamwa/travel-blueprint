@@ -1,61 +1,69 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Container,
-  Typography,
-  Box,
-  Grid,
-  Card,
-  CardContent,
-  Button,
-  CircularProgress,
-  Paper,
-  Chip,
-  List,
-  ListItem,
-  ListItemText,
-  CardActionArea,
-  Link
-} from '@mui/material';
-import {
-  ArrowBack as BackIcon,
-  Public as CountryIcon,
-  AttachMoney as CurrencyIcon,
-  Language as LanguageIcon,
-  LocationCity as CityIcon,
-  Phone as TelecomIcon
-} from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
+import { 
+  ArrowLeftIcon,
+  GlobeAltIcon,
+  CurrencyDollarIcon,
+  LanguageIcon,
+  BuildingOffice2Icon,
+  PhoneIcon
+} from '@heroicons/react/24/outline';
 import { getCountryById, getCitiesByCountry } from '../services/firestoreService';
+import Card from '../components/Card';
 
-const CityCard = ({ city, onClick }) => {
+const CityCard = ({ city, onClick, index }) => {
   const { t } = useTranslation();
 
   return (
-    <Card sx={{ height: '100%' }}>
-      <CardActionArea onClick={onClick} sx={{ height: '100%' }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <CityIcon sx={{ mr: 1, color: 'primary.main' }} />
-            <Typography variant="h6" component="h3">
+    <div 
+      className="group"
+      style={{ 
+        animationDelay: `${index * 100}ms` 
+      }}
+    >
+      <Card 
+        className="h-full relative overflow-hidden group-hover:scale-105 transition-all duration-500 border-0 shadow-xl hover:shadow-2xl cursor-pointer"
+        onClick={onClick}
+      >
+        {/* Gradient Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-5 group-hover:opacity-10 transition-opacity duration-300"></div>
+        
+        <div className="relative">
+          {/* Header with Icon and Name */}
+          <div className="flex items-center mb-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg mr-3">
+              <BuildingOffice2Icon className="h-6 w-6 text-purple" />
+            </div>
+            <h3 className="text-xl font-semibold text-darkpurple group-hover:text-blue transition-colors duration-300">
               {city.name}
-            </Typography>
-          </Box>
+            </h3>
+          </div>
           
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            <strong>{t('best_time')}:</strong> {city.bestTime || 'N/A'}
-          </Typography>
-          
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            <strong>{t('top_attraction')}:</strong> {city.topAttraction || 'N/A'}
-          </Typography>
-          
-          <Typography variant="body2" color="text.secondary">
-            <strong>{t('attractions')}:</strong> {city.attractionCount || 0}
-          </Typography>
-        </CardContent>
-      </CardActionArea>
-    </Card>
+          <div className="space-y-3">
+            <p className="text-sm text-grey group-hover:text-darkpurple transition-colors duration-300">
+              <span className="font-medium">{t('best_time')}:</span> {city.bestTime || 'N/A'}
+            </p>
+            
+            <p className="text-sm text-grey group-hover:text-darkpurple transition-colors duration-300">
+              <span className="font-medium">{t('top_attraction')}:</span> {city.topAttraction || 'N/A'}
+            </p>
+            
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-grey group-hover:text-darkpurple transition-colors duration-300">
+                <span className="font-medium">{t('attractions')}:</span> {city.attractionCount || 0}
+              </span>
+              <span className="inline-block px-3 py-1 bg-gradient-to-r from-lightblue to-blue text-white text-xs font-medium rounded-full group-hover:from-blue group-hover:to-darkblue transition-all duration-300 transform group-hover:scale-105">
+                {t('view_details')}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Animated border */}
+        <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-emerald-500 to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+      </Card>
+    </div>
   );
 };
 
@@ -96,178 +104,162 @@ const CountryDetail = () => {
 
   if (loading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="60vh"
-      >
-        <CircularProgress size={60} />
-        <Typography variant="h6" sx={{ ml: 2 }}>
-          {t('loading')}
-        </Typography>
-      </Box>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue"></div>
+        <span className="ml-4 text-xl text-grey">{t('loading')}</span>
+      </div>
     );
   }
 
   if (!country) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Typography variant="h6" color="text.secondary">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16">
+        <h2 className="text-lg font-medium text-grey">
           {t('no_data')}
-        </Typography>
-      </Container>
+        </h2>
+      </div>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Button
-        startIcon={<BackIcon />}
+    <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16">
+      <button
         onClick={() => navigate('/countries')}
-        sx={{ mb: 3 }}
+        className="flex items-center px-4 py-2 text-darkpurple hover:text-blue hover:bg-lightgrey rounded-lg transition-all duration-200 transform hover:scale-105 mb-8"
       >
+        <ArrowLeftIcon className="h-5 w-5 mr-2" />
         {t('back')}
-      </Button>
+      </button>
 
       {/* Country Header */}
-      <Paper sx={{ p: 4, mb: 4 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-          <CountryIcon sx={{ mr: 2, fontSize: 40, color: 'primary.main' }} />
-          <Box>
-            <Typography variant="h3" component="h1">
-              {country.id.charAt(0).toUpperCase() + country.id.slice(1)}
-            </Typography>
-            <Chip 
-              label={t(country.continent)}
-              color="primary"
-              sx={{ mt: 1 }}
-            />
-          </Box>
-        </Box>
+      <div className="bg-gradient-to-br from-blue via-btnblue to-darkblue rounded-3xl p-8 mb-8 text-white relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-4 right-4 w-32 h-32 bg-white rounded-full animate-pulse"></div>
+          <div className="absolute bottom-4 left-4 w-16 h-16 bg-white rounded-full animate-bounce"></div>
+        </div>
+        
+        <div className="relative">
+          <div className="flex items-center mb-6">
+            <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mr-4">
+              <GlobeAltIcon className="h-10 w-10 text-purple" />
+            </div>
+            <div>
+              <h1 className="text-4xl lg:text-5xl font-bold mb-2">
+                {country.id.charAt(0).toUpperCase() + country.id.slice(1)}
+              </h1>
+              <span className="inline-block px-4 py-2 bg-white/20 backdrop-blur-sm text-white font-medium rounded-full">
+                {t(country.continent)}
+              </span>
+            </div>
+          </div>
 
-        <Grid container spacing={4}>
-          {/* Country Information */}
-          <Grid item xs={12} md={6}>
-            <Typography variant="h5" gutterBottom>
-              {t('visa_requirement')}
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 3 }}>
-              {country.countryInfo?.visaRequirement || t('no_data')}
-            </Typography>
+          {/* Country Information Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Left Column */}
+            <div className="space-y-6">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+                <h3 className="text-xl font-semibold mb-4">{t('visa_requirement')}</h3>
+                <p className="text-white/90 text-lg">
+                  {country.countryInfo?.visaRequirement || t('no_data')}
+                </p>
+              </div>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <CurrencyIcon sx={{ mr: 1 }} />
-              <Typography variant="h6">
-                <strong>{t('currency')}:</strong> {country.countryInfo?.currency || t('no_data')}
-              </Typography>
-            </Box>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+                <div className="flex items-center mb-4">
+                  <CurrencyDollarIcon className="h-6 w-6 mr-2" />
+                  <h3 className="text-xl font-semibold">{t('currency')}</h3>
+                </div>
+                <p className="text-white/90 text-lg">
+                  {country.countryInfo?.currency || t('no_data')}
+                </p>
+              </div>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-              <LanguageIcon sx={{ mr: 1 }} />
-              <Typography variant="h6">
-                <strong>{t('languages')}:</strong> {country.countryInfo?.officialLanguages?.join(', ') || t('no_data')}
-              </Typography>
-            </Box>
-          </Grid>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+                <div className="flex items-center mb-4">
+                  <LanguageIcon className="h-6 w-6 mr-2" />
+                  <h3 className="text-xl font-semibold">{t('languages')}</h3>
+                </div>
+                <p className="text-white/90 text-lg">
+                  {country.countryInfo?.officialLanguages?.join(', ') || t('no_data')}
+                </p>
+              </div>
+            </div>
 
-          {/* Exchange Rates */}
-          <Grid item xs={12} md={6}>
-            {country.countryInfo?.exchangeRates && (
-              <>
-                <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-                  <CurrencyIcon sx={{ mr: 1 }} />
-                  <strong>{t('exchange_rates')}</strong> 
-                </Typography>               
-                <Box sx={{ mb: 2, p: 2, bgcolor: 'background.paper', borderRadius: 1 }}>
-                   {/* SAR Conversion */}
-                  <Typography variant="body1" sx={{ fontWeight: 'medium', mb: 1 }}>
-                    1,000 SAR = {(1000 * (country.countryInfo.exchangeRates.sarToLocal || 0)).toLocaleString()} {country.countryInfo.currency}
-                  </Typography>  
-                   {/* USD Conversion */}
-                  <Typography variant="body1" sx={{ fontWeight: 'medium', mb: 1 }}>
-                    100 USD = {(100 * (country.countryInfo.exchangeRates.usdToLocal || 0)).toLocaleString()} {country.countryInfo.currency}
-                  </Typography>                 
-                </Box>
-              </>
-            )}
-          </Grid>
-        </Grid>
-      </Paper>
+            {/* Right Column */}
+            <div className="space-y-6">
+              {/* Exchange Rates */}
+              {country.countryInfo?.exchangeRates && (
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+                  <div className="flex items-center mb-4">
+                    <CurrencyDollarIcon className="h-6 w-6 mr-2" />
+                    <h3 className="text-xl font-semibold">{t('exchange_rates')}</h3>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="bg-white/10 rounded-lg p-4">
+                      <p className="text-white/90 font-medium">
+                        1,000 SAR = {(1000 * (country.countryInfo.exchangeRates.sarToLocal || 0)).toLocaleString()} {country.countryInfo.currency}
+                      </p>
+                    </div>
+                    <div className="bg-white/10 rounded-lg p-4">
+                      <p className="text-white/90 font-medium">
+                        100 USD = {(100 * (country.countryInfo.exchangeRates.usdToLocal || 0)).toLocaleString()} {country.countryInfo.currency}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+                             {/* Telecom Providers */}
+               {country.countryInfo?.telecomProviders && country.countryInfo.telecomProviders.length > 0 && (
+                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+                   <div className="flex items-center mb-4">
+                     <PhoneIcon className="h-6 w-6 mr-2" />
+                     <h3 className="text-xl font-semibold">{t('telecom_providers')}</h3>
+                   </div>
+                   <div className="flex flex-wrap gap-2">
+                     {country.countryInfo.telecomProviders.map((provider, index) => (
+                       <span 
+                         key={index}
+                         className="px-3 py-1 bg-white/20 text-white text-sm rounded-full"
+                       >
+                         {typeof provider === 'object' ? provider.name : provider}
+                       </span>
+                     ))}
+                   </div>
+                 </div>
+               )}
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Cities Section */}
-      <Typography variant="h4" component="h2" gutterBottom>
-        {t('cities')} ({cities.length})
-      </Typography>
+      <div>
+        <h2 className="text-4xl font-bold text-darkpurple mb-8">
+          {t('cities')} ({cities.length})
+        </h2>
 
-      {cities.length > 0 ? (
-        <Grid container spacing={3}>
-          {cities.map((city) => (
-            <Grid item xs={12} sm={6} md={4} key={city.id}>
+        {cities.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+            {cities.map((city, index) => (
               <CityCard
+                key={city.id}
                 city={city}
                 onClick={() => handleCityClick(city.id)}
+                index={index}
               />
-            </Grid>
-          ))}
-        </Grid>
-      ) : (
-        <Box sx={{ textAlign: 'center', mt: 4 }}>
-          <Typography variant="h6" color="text.secondary">
-            {t('no_data')}
-          </Typography>
-        </Box>
-      )}
-
-      {/* Telecom Providers Section */}
-      {country.countryInfo?.telecomProviders && country.countryInfo.telecomProviders.length > 0 && (
-        <>
-          <Typography variant="h4" component="h2" gutterBottom sx={{ mt: 6 }}>
-            <TelecomIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-            {t('telecom_providers')}
-          </Typography>
-          
-          <Card sx={{ mt: 2 }}>
-            <CardContent>
-              <Grid container spacing={3}>
-                {country.countryInfo.telecomProviders.map((provider, index) => (
-                  <Grid item xs={12} sm={6} md={4} key={index}>
-                    <Paper sx={{ p: 3, textAlign: 'center', height: '100%' }}>
-                      <Typography variant="h6" gutterBottom>
-                        {provider.name}
-                      </Typography>
-                      {provider.website && (
-                        <Link
-                          href={provider.website}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          sx={{
-                            display: 'inline-block',
-                            mt: 1,
-                            textDecoration: 'none',
-                            '&:hover': {
-                              textDecoration: 'underline',
-                            },
-                          }}
-                        >
-                          <Button
-                            variant="outlined"
-                            size="small"
-                            sx={{ mt: 1 }}
-                          >
-                            Visit Website
-                          </Button>
-                        </Link>
-                      )}
-                    </Paper>
-                  </Grid>
-                ))}
-              </Grid>
-            </CardContent>
-          </Card>
-        </>
-      )}
-    </Container>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <BuildingOffice2Icon className="mx-auto h-12 w-12 text-grey mb-4" />
+            <h3 className="text-lg font-medium text-darkpurple mb-2">{t('no_data')}</h3>
+            <p className="text-grey">No cities found for this country.</p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

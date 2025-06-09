@@ -1,71 +1,89 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Container,
-  Typography,
-  Box,
-  Grid,
-  Card,
-  CardContent,
-  CardActionArea,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  CircularProgress,
-  Chip,
-  Button
-} from '@mui/material';
-import {
-  Public as CountryIcon,
-  AttachMoney as CurrencyIcon,
-  Language as LanguageIcon,
-  ClearAll as ClearIcon
-} from '@mui/icons-material';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { 
+  GlobeAltIcon, 
+  CurrencyDollarIcon, 
+  LanguageIcon,
+  XMarkIcon,
+  FunnelIcon
+} from '@heroicons/react/24/outline';
 import { getCountries } from '../services/firestoreService';
+import Card from '../components/Card';
 
-const CountryCard = ({ country, onClick }) => {
+const CountryCard = ({ country, onClick, index }) => {
   const { t } = useTranslation();
 
   return (
-    <Card sx={{ height: '100%' }}>
-      <CardActionArea onClick={onClick} sx={{ height: '100%' }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <CountryIcon sx={{ mr: 1, color: 'primary.main' }} />
-            <Typography variant="h6" component="h3">
+    <div 
+      className="group"
+      style={{ 
+        animationDelay: `${index * 100}ms` 
+      }}
+    >
+      <Card 
+        className="cursor-pointer h-full relative overflow-hidden group-hover:scale-105 transition-all duration-500 border-0 shadow-xl hover:shadow-2xl"
+        onClick={(e) => {
+          console.log('Country card clicked!', country.id);
+          onClick();
+        }}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClick();
+          }
+        }}
+      >
+        {/* Gradient Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 opacity-5 group-hover:opacity-10 transition-opacity duration-300"></div>
+        
+        <div className="relative">
+          {/* Icon with animated background */}
+          <div className="flex items-center mb-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg mr-3">
+              <GlobeAltIcon className="h-6 w-6 text-purple" />
+            </div>
+            <h3 className="text-xl font-semibold text-darkpurple group-hover:text-blue transition-colors duration-300">
               {country.id.charAt(0).toUpperCase() + country.id.slice(1)}
-            </Typography>
-          </Box>
+            </h3>
+          </div>
           
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            <strong>{t('visa_requirement')}:</strong> {country.countryInfo?.visaRequirement || 'N/A'}
-          </Typography>
+          <div className="space-y-3 mb-4">
+            <p className="text-sm text-grey">
+              <span className="font-medium">{t('visa_requirement')}:</span> {country.countryInfo?.visaRequirement || 'N/A'}
+            </p>
+            
+            <div className="flex items-center text-sm text-grey group-hover:text-darkpurple transition-colors duration-300">
+              <div className="w-6 h-6 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center mr-2 transform group-hover:scale-110 transition-transform duration-300">
+                <CurrencyDollarIcon className="h-4 w-4 text-purple" />
+              </div>
+              <span>{country.countryInfo?.currency || 'N/A'}</span>
+            </div>
+            
+            <div className="flex items-center text-sm text-grey group-hover:text-darkpurple transition-colors duration-300">
+              <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center mr-2 transform group-hover:scale-110 transition-transform duration-300">
+                <LanguageIcon className="h-4 w-4 text-purple" />
+              </div>
+              <span>{country.countryInfo?.officialLanguages?.join(', ') || 'N/A'}</span>
+            </div>
+          </div>
           
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-            <CurrencyIcon sx={{ mr: 1, fontSize: 16 }} />
-            <Typography variant="body2">
-              {country.countryInfo?.currency || 'N/A'}
-            </Typography>
-          </Box>
-          
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <LanguageIcon sx={{ mr: 1, fontSize: 16 }} />
-            <Typography variant="body2">
-              {country.countryInfo?.officialLanguages?.join(', ') || 'N/A'}
-            </Typography>
-          </Box>
-          
-          <Chip 
-            label={t(country.continent)}
-            size="small"
-            color="primary"
-            variant="outlined"
-          />
-        </CardContent>
-      </CardActionArea>
-    </Card>
+          <div className="flex items-center justify-between">
+            <span className="inline-block px-3 py-1 bg-gradient-to-r from-lightblue to-blue text-white text-xs font-medium rounded-full group-hover:from-blue group-hover:to-darkblue transition-all duration-300 transform group-hover:scale-105">
+              {t(country.continent)}
+            </span>
+            <span className="text-xs text-grey group-hover:text-blue transition-colors duration-300 opacity-0 group-hover:opacity-100">
+              {t('view_details')} →
+            </span>
+          </div>
+        </div>
+
+        {/* Animated border */}
+        <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-blue to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+      </Card>
+    </div>
   );
 };
 
@@ -81,7 +99,7 @@ const Countries = () => {
   const [availableContinents, setAvailableContinents] = useState([]);
   const [availableVisaRequirements, setAvailableVisaRequirements] = useState([]);
 
-  const allContinents = ['europe', 'asia', 'africa', 'north_america', 'south_america', 'oceania'];
+  const allContinents = useMemo(() => ['europe', 'asia', 'africa', 'north_america', 'south_america', 'oceania'], []);
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -110,7 +128,7 @@ const Countries = () => {
     };
 
     fetchCountries();
-  }, []);
+  }, [allContinents]);
 
   useEffect(() => {
     let filtered = allCountries;
@@ -193,104 +211,107 @@ const Countries = () => {
   };
 
   const handleCountryClick = (countryId) => {
+    console.log('Clicking country with ID:', countryId);
     navigate(`/countries/${countryId}`);
   };
 
   if (loading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="60vh"
-      >
-        <CircularProgress size={60} />
-        <Typography variant="h6" sx={{ ml: 2 }}>
-          {t('loading')}
-        </Typography>
-      </Box>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue"></div>
+        <span className="ml-4 text-xl text-grey">{t('loading')}</span>
+      </div>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h3" component="h1" gutterBottom>
-        {t('countries')}
-      </Typography>
+    <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16">
+      <div className="mb-8">
+        <h1 className="text-5xl font-bold text-darkpurple mb-4">
+          {t('countries')}
+        </h1>
+        <p className="text-lg text-grey">
+          {t('Explore countries around the world and plan your next adventure')}
+        </p>
+      </div>
       
       {/* Filters */}
-      <Box sx={{ mb: 4, display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+      <div className="mb-8 flex flex-wrap gap-4 items-center p-6 bg-lightgrey rounded-2xl">
+        <FunnelIcon className="h-5 w-5 text-blue" />
+        
         {/* Continent Filter */}
-        <FormControl sx={{ minWidth: 200 }}>
-          <InputLabel>{t('select_continent')}</InputLabel>
-          <Select
+        <div className="min-w-[200px]">
+          <label className="block text-sm font-medium text-grey mb-2">
+            {t('select_continent')}
+          </label>
+          <select
             value={selectedContinent}
             onChange={handleContinentChange}
-            label={t('select_continent')}
+            className="w-full px-4 py-2 border border-linegrey rounded-lg focus:ring-2 focus:ring-blue focus:border-blue outline-none transition-colors"
           >
-            <MenuItem value="">
-              {t('all_continents')}
-            </MenuItem>
+            <option value="">{t('all_continents')}</option>
             {availableContinents.map((continent) => (
-              <MenuItem key={continent} value={continent}>
+              <option key={continent} value={continent}>
                 {t(continent)}
-              </MenuItem>
+              </option>
             ))}
-          </Select>
-        </FormControl>
+          </select>
+        </div>
 
         {/* Visa Requirement Filter */}
-        <FormControl sx={{ minWidth: 200 }}>
-          <InputLabel>{t('visa_requirement')}</InputLabel>
-          <Select
+        <div className="min-w-[200px]">
+          <label className="block text-sm font-medium text-grey mb-2">
+            {t('visa_requirement')}
+          </label>
+          <select
             value={selectedVisaRequirement}
             onChange={handleVisaRequirementChange}
-            label={t('visa_requirement')}
+            className="w-full px-4 py-2 border border-linegrey rounded-lg focus:ring-2 focus:ring-blue focus:border-blue outline-none transition-colors"
           >
-            <MenuItem value="">
-              {t('all_visa_requirements')}
-            </MenuItem>
+            <option value="">{t('all_visa_requirements')}</option>
             {availableVisaRequirements.map((requirement) => (
-              <MenuItem key={requirement} value={requirement}>
+              <option key={requirement} value={requirement}>
                 {requirement}
-              </MenuItem>
+              </option>
             ))}
-          </Select>
-        </FormControl>
+          </select>
+        </div>
 
         {/* Clear Filters Button */}
         {(selectedContinent || selectedVisaRequirement) && (
-          <Button
-            variant="outlined"
-            startIcon={<ClearIcon />}
+          <button
             onClick={handleClearFilters}
-            sx={{ height: '56px' }}
+            className="flex items-center px-4 py-2 border border-grey text-grey hover:border-blue hover:text-blue rounded-lg transition-colors duration-300"
           >
+            <XMarkIcon className="h-4 w-4 mr-2" />
             {t('clear_filters')}
-          </Button>
+          </button>
         )}
-      </Box>
+      </div>
 
-      {/* Countries Grid */}
-      <Grid container spacing={3}>
-        {filteredCountries.map((country) => (
-          <Grid item xs={12} sm={6} md={4} key={country.id}>
+              {/* Countries Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+          {filteredCountries.map((country, index) => (
             <CountryCard
+              key={country.id}
               country={country}
               onClick={() => handleCountryClick(country.id)}
+              index={index}
             />
-          </Grid>
-        ))}
-      </Grid>
+          ))}
+      </div>
 
       {filteredCountries.length === 0 && !loading && (
-        <Box sx={{ textAlign: 'center', mt: 4 }}>
-          <Typography variant="h6" color="text.secondary">
+        <div className="text-center mt-12">
+          <h3 className="text-xl font-medium text-grey">
             {t('no_data')}
-          </Typography>
-        </Box>
+          </h3>
+          <p className="text-grey mt-2">
+            {t('Try adjusting your filters to see more results')}
+          </p>
+        </div>
       )}
-    </Container>
+    </div>
   );
 };
 
