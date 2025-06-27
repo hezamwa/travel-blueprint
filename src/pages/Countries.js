@@ -8,7 +8,7 @@ import {
   XMarkIcon,
   FunnelIcon
 } from '@heroicons/react/24/outline';
-import { getCountries } from '../services/firestoreService';
+import { getCountries } from '../services/apiService';
 import Card from '../components/Card';
 
 const CountryCard = ({ country, onClick, index }) => {
@@ -46,7 +46,7 @@ const CountryCard = ({ country, onClick, index }) => {
               <GlobeAltIcon className="h-6 w-6 text-purple" />
             </div>
             <h3 className="text-xl font-semibold text-darkpurple group-hover:text-blue transition-colors duration-300">
-              {country.id.charAt(0).toUpperCase() + country.id.slice(1)}
+              {country.name || (country.id.charAt(0).toUpperCase() + country.id.slice(1))}
             </h3>
           </div>
           
@@ -59,7 +59,11 @@ const CountryCard = ({ country, onClick, index }) => {
               <div className="w-6 h-6 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center mr-2 transform group-hover:scale-110 transition-transform duration-300">
                 <CurrencyDollarIcon className="h-4 w-4 text-purple" />
               </div>
-              <span>{country.countryInfo?.currency || 'N/A'}</span>
+              <span>
+                {country.countryInfo?.currency
+                  ? `${country.countryInfo.currency.name} (${country.countryInfo.currency.code})`
+                  : 'N/A'}
+              </span>
             </div>
             
             <div className="flex items-center text-sm text-grey group-hover:text-darkpurple transition-colors duration-300">
@@ -88,7 +92,7 @@ const CountryCard = ({ country, onClick, index }) => {
 };
 
 const Countries = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [allCountries, setAllCountries] = useState([]);
   const [filteredCountries, setFilteredCountries] = useState([]);
@@ -105,7 +109,7 @@ const Countries = () => {
     const fetchCountries = async () => {
       try {
         setLoading(true);
-        const countriesData = await getCountries();
+        const countriesData = await getCountries(i18n.language);
         setAllCountries(countriesData);
         setFilteredCountries(countriesData);
         
@@ -128,7 +132,7 @@ const Countries = () => {
     };
 
     fetchCountries();
-  }, [allContinents]);
+  }, [allContinents, i18n.language]);
 
   useEffect(() => {
     let filtered = allCountries;

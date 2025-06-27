@@ -10,7 +10,7 @@ import {
   GlobeAltIcon,
   ArrowTopRightOnSquareIcon
 } from '@heroicons/react/24/outline';
-import { getCityById, getAttractionsByCity } from '../services/firestoreService';
+import { getCityById, getAttractionsByCity } from '../services/apiService';
 import Card from '../components/Card';
 
 const AttractionCard = ({ attraction, index }) => {
@@ -95,7 +95,7 @@ const AttractionCard = ({ attraction, index }) => {
 };
 
 const CityDetail = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { cityId } = useParams();
   const [city, setCity] = useState(null);
@@ -107,8 +107,8 @@ const CityDetail = () => {
       try {
         setLoading(true);
         const [cityData, attractionsData] = await Promise.all([
-          getCityById(cityId),
-          getAttractionsByCity(cityId)
+          getCityById(cityId, i18n.language),
+          getAttractionsByCity(cityId, i18n.language)
         ]);
         
         setCity(cityData);
@@ -123,7 +123,7 @@ const CityDetail = () => {
     if (cityId) {
       fetchCityData();
     }
-  }, [cityId]);
+  }, [cityId, i18n.language]);
 
   if (loading) {
     return (
@@ -207,7 +207,7 @@ const CityDetail = () => {
                 <SunIcon className="h-6 w-6 mr-2" />
                 <span className="font-semibold">{t('best_time')}</span>
               </div>
-              <p className="text-white/80">{city.bestTime || t('no_data')}</p>
+              <p className="text-white/80">{Array.isArray(city.bestTimeToVisit) ? city.bestTimeToVisit.join(', ') : (city.bestTimeToVisit || t('no_data'))}</p>
             </div>
 
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4">

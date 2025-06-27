@@ -3,24 +3,24 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
-    "firebase": "^10.7.1",
-    "firebase-admin": "^12.0.0",
-    "react-i18next": "^13.5.0",
-    "i18next": "^23.7.8",
-    "i18next-browser-languagedetector": "^7.2.0",
-    "react-router-dom": "^6.20.1",
-    "@headlessui/react": "^2.1.9",
-    "@heroicons/react": "^2.1.5",
-    "react-slick": "^0.30.2",
-    "slick-carousel": "^1.8.1",
-    "@mui/material": "^5.15.1",
-    "@mui/icons-material": "^5.15.1",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
-    "@mui/system": "^5.15.1"
+    "@headlessui/react": "^2.1.9",
+    "@heroicons/react": "^2.1.5",
+    "@mui/icons-material": "^5.15.1",
+    "@mui/material": "^5.15.1",
+    "@mui/system": "^5.15.1",
+    "firebase": "^10.7.1",
+    "firebase-admin": "^12.0.0",
+    "i18next": "^23.7.8",
+    "i18next-browser-languagedetector": "^7.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-i18next": "^13.5.0",
+    "react-router-dom": "^6.20.1",
+    "react-scripts": "^5.0.1",
+    "react-slick": "^0.30.2",
+    "slick-carousel": "^1.8.1"
   },
   "devDependencies": {
     "@types/react-slick": "^0.23.13",
@@ -59,4 +59,4 @@
       "last 1 safari version"
     ]
   }
-} 
+}

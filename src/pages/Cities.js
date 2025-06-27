@@ -12,7 +12,7 @@ import {
   FunnelIcon,
   MagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
-import { getCities } from '../services/firestoreService';
+import { getCities } from '../services/apiService';
 import Card from '../components/Card';
 
 const CityCard = ({ city, onClick, onCountryClick, index }) => {
@@ -73,7 +73,7 @@ const CityCard = ({ city, onClick, onCountryClick, index }) => {
           
           <div className="space-y-3 mb-4">
             <p className="text-sm text-grey group-hover:text-darkpurple transition-colors duration-300">
-              <span className="font-medium">{t('best_time')}:</span> {city.bestTime || 'N/A'}
+              <span className="font-medium">{t('best_time')}:</span> {Array.isArray(city.bestTimeToVisit) ? city.bestTimeToVisit.join(', ') : (city.bestTimeToVisit || 'N/A')}
             </p>
             
             <p className="text-sm text-grey group-hover:text-darkpurple transition-colors duration-300">
@@ -120,7 +120,7 @@ const CityCard = ({ city, onClick, onCountryClick, index }) => {
 };
 
 const Cities = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [allCities, setAllCities] = useState([]);
   const [filteredCities, setFilteredCities] = useState([]);
@@ -142,7 +142,7 @@ const Cities = () => {
     const fetchCities = async () => {
       try {
         setLoading(true);
-        const citiesData = await getCities();
+        const citiesData = await getCities(i18n.language);
         setAllCities(citiesData);
         setFilteredCities(citiesData);
         
@@ -151,7 +151,7 @@ const Cities = () => {
         const countries = [...new Set(citiesData.map(city => city.country))].sort();
         const bestTimes = [...new Set(
           citiesData
-            .map(city => city.bestTime)
+            .flatMap(city => Array.isArray(city.bestTimeToVisit) ? city.bestTimeToVisit : (city.bestTimeToVisit ? [city.bestTimeToVisit] : []))
             .filter(time => time && time !== 'N/A')
         )].sort();
         
@@ -169,7 +169,7 @@ const Cities = () => {
     };
 
     fetchCities();
-  }, []);
+  }, [i18n.language]);
 
   useEffect(() => {
     let filtered = allCities;
@@ -191,7 +191,7 @@ const Cities = () => {
     // Apply best time filter
     if (selectedBestTime) {
       const baseData = (selectedContinent || selectedCountry) ? filtered : allCities;
-      filtered = baseData.filter(city => city.bestTime === selectedBestTime);
+      filtered = baseData.filter(city => Array.isArray(city.bestTimeToVisit) ? city.bestTimeToVisit.includes(selectedBestTime) : city.bestTimeToVisit === selectedBestTime);
     }
 
     // Apply search term filter
@@ -214,7 +214,7 @@ const Cities = () => {
       }
       
       if (excludeFilter !== 'bestTime' && selectedBestTime) {
-        base = base.filter(city => city.bestTime === selectedBestTime);
+        base = base.filter(city => Array.isArray(city.bestTimeToVisit) ? city.bestTimeToVisit.includes(selectedBestTime) : city.bestTimeToVisit === selectedBestTime);
       }
       
       return base;
@@ -233,11 +233,22 @@ const Cities = () => {
     setAvailableCountries(countriesFromCurrentFilters);
 
     // Update available best times
+    const monthOrder = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
     const bestTimesFromCurrentFilters = [...new Set(
       getFilteredBase('bestTime')
-        .map(city => city.bestTime)
+        .flatMap(city => Array.isArray(city.bestTimeToVisit) ? city.bestTimeToVisit : (city.bestTimeToVisit ? [city.bestTimeToVisit] : []))
         .filter(time => time && time !== 'N/A')
-    )].sort();
+    )].sort((a, b) => {
+      const aIndex = monthOrder.findIndex(m => m.toLowerCase() === a.toLowerCase());
+      const bIndex = monthOrder.findIndex(m => m.toLowerCase() === b.toLowerCase());
+      if (aIndex === -1 && bIndex === -1) return a.localeCompare(b);
+      if (aIndex === -1) return 1;
+      if (bIndex === -1) return -1;
+      return aIndex - bIndex;
+    });
     setAvailableBestTimes(bestTimesFromCurrentFilters);
 
     setFilteredCities(filtered);

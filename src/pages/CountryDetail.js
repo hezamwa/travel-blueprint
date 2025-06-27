@@ -9,7 +9,7 @@ import {
   BuildingOffice2Icon,
   PhoneIcon
 } from '@heroicons/react/24/outline';
-import { getCountryById, getCitiesByCountry } from '../services/firestoreService';
+import { getCountryById, getCitiesByCountry } from '../services/apiService';
 import Card from '../components/Card';
 
 const CityCard = ({ city, onClick, index }) => {
@@ -68,7 +68,7 @@ const CityCard = ({ city, onClick, index }) => {
 };
 
 const CountryDetail = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { countryId } = useParams();
   const [country, setCountry] = useState(null);
@@ -80,8 +80,8 @@ const CountryDetail = () => {
       try {
         setLoading(true);
         const [countryData, citiesData] = await Promise.all([
-          getCountryById(countryId),
-          getCitiesByCountry(countryId)
+          getCountryById(countryId, i18n.language),
+          getCitiesByCountry(countryId, i18n.language)
         ]);
         
         setCountry(countryData);
@@ -96,10 +96,20 @@ const CountryDetail = () => {
     if (countryId) {
       fetchCountryData();
     }
-  }, [countryId]);
+  }, [countryId, i18n.language]);
 
   const handleCityClick = (cityId) => {
     navigate(`/cities/${cityId}`);
+  };
+
+  // Helper to render currency string
+  const renderCurrency = (currency) => {
+    if (!currency) return '';
+    if (typeof currency === 'string') return currency;
+    if (currency.name && currency.code) return `${currency.name} (${currency.code})`;
+    if (currency.name) return currency.name;
+    if (currency.code) return currency.code;
+    return '';
   };
 
   if (loading) {
@@ -146,7 +156,7 @@ const CountryDetail = () => {
             </div>
             <div>
               <h1 className="text-4xl lg:text-5xl font-bold mb-2">
-                {country.id.charAt(0).toUpperCase() + country.id.slice(1)}
+                {country.name || (country.id.charAt(0).toUpperCase() + country.id.slice(1))}
               </h1>
               <span className="inline-block px-4 py-2 bg-white/20 backdrop-blur-sm text-white font-medium rounded-full">
                 {t(country.continent)}
@@ -171,7 +181,9 @@ const CountryDetail = () => {
                   <h3 className="text-xl font-semibold">{t('currency')}</h3>
                 </div>
                 <p className="text-white/90 text-lg">
-                  {country.countryInfo?.currency || t('no_data')}
+                  {country.countryInfo?.currency
+                    ? `${country.countryInfo.currency.name} (${country.countryInfo.currency.code})`
+                    : t('no_data')}
                 </p>
               </div>
 
@@ -198,12 +210,12 @@ const CountryDetail = () => {
                   <div className="space-y-3">
                     <div className="bg-white/10 rounded-lg p-4">
                       <p className="text-white/90 font-medium">
-                        1,000 SAR = {(1000 * (country.countryInfo.exchangeRates.sarToLocal || 0)).toLocaleString()} {country.countryInfo.currency}
+                        1,000 SAR = {(1000 * (country.countryInfo.exchangeRates.sarToLocal || 0)).toLocaleString()} {renderCurrency(country.countryInfo.currency)}
                       </p>
                     </div>
                     <div className="bg-white/10 rounded-lg p-4">
                       <p className="text-white/90 font-medium">
-                        100 USD = {(100 * (country.countryInfo.exchangeRates.usdToLocal || 0)).toLocaleString()} {country.countryInfo.currency}
+                        100 USD = {(100 * (country.countryInfo.exchangeRates.usdToLocal || 0)).toLocaleString()} {renderCurrency(country.countryInfo.currency)}
                       </p>
                     </div>
                   </div>

@@ -6,7 +6,7 @@ import {
   MapPinIcon, 
   BuildingOffice2Icon 
 } from '@heroicons/react/24/outline';
-import { getMetadata } from '../services/firestoreService';
+import { getMetadata } from '../services/apiService';
 import Hero from '../components/Hero';
 
 const StatCard = ({ icon, title, value, gradient, hoverBg }) => {
@@ -41,7 +41,7 @@ const StatCard = ({ icon, title, value, gradient, hoverBg }) => {
 };
 
 const Home = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [metadata, setMetadata] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -49,7 +49,7 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const metadataData = await getMetadata();
+        const metadataData = await getMetadata(i18n.language);
         setMetadata(metadataData);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -59,7 +59,7 @@ const Home = () => {
     };
 
     fetchData();
-  }, []);
+  }, [i18n.language]);
 
   if (loading) {
     return (
